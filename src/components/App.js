@@ -4,12 +4,14 @@ import Order from "./Order";
 import Inventory from "./Inventory";
 import sampleFishes from "../sample-fishes";
 import Fish from "./Fish";
+import Base from "../base";
 
 class App extends React.Component {
     constructor() {
         super();
 
         this.addFish = this.addFish.bind(this);
+        this.updateFish = this.updateFish.bind(this);
         this.loadSamples = this.loadSamples.bind(this);
         this.addToOrder = this.addToOrder.bind(this);
 
@@ -18,6 +20,34 @@ class App extends React.Component {
             fishes: {},
             order: {}
         };
+    }
+
+    componentWillMount() {
+        // runs before <app> rendered
+        this.ref = Base.syncState(`${this.props.params.storeId}/fishes`,
+        {
+            context: this,
+            state: 'fishes'
+        });
+
+        // check if order in localStorage
+        const localStorageRef = localStorage.getItem(`order-${this.props.params.storeId}`);
+
+        if (localStorageRef) {
+            // update <App>
+            this.setState({
+                order: JSON.parse(localStorageRef)
+            });
+        }
+    }
+
+    componentWillUnmount() {
+        Base.removeBinding(this.ref);
+    }
+
+    componentWillUpdate(nextProps, nextState) {
+        localStorage.setItem(`order-${this.props.params.storeId}`,
+        JSON.stringify(nextState.order));
     }
 
     addFish (fish) {
@@ -32,6 +62,12 @@ class App extends React.Component {
         this.setState({fishes})
     }
 
+    updateFish(key, updatedFish) {
+        const fishes = {...this.state.fished};
+        fishes[key] = updatedFish;
+        this.setState({ fishes});
+    }
+
     loadSamples() {
         this.setState({
             fishes: sampleFishes
@@ -41,7 +77,7 @@ class App extends React.Component {
     addToOrder (key) {
         // get copy of order
         const order = {...this.state.order};
-        
+
         // update or add no. of fish order
         order[key] = order[key] + 1 || 1;
 
@@ -65,9 +101,16 @@ class App extends React.Component {
                     </ul>
                 </div>
                 <Order 
-                    fishes={this.state.fishes} order={this.state.order} 
+                    fishes={this.state.fishes} 
+                    order={this.state.order}
+                    params={this.props.params} 
                 />
-                <Inventory addFish={this.addFish} loadSamples={this.loadSamples} /> 
+                <Inventory 
+                    addFish={this.addFish} 
+                    loadSamples={this.loadSamples} 
+                    fishes={this.state.fishes}
+                    updateFish={this.updateFish}
+                /> 
             </div>
         )
     }
