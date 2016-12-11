@@ -5,3 +5,46 @@
   appear Must set transitionAppear={true} on animation component
 */
 
+.order-enter {
+  transition: all 500ms ease-in-out;
+  transform: translateX(-120%);
+  max-height: 0;
+  padding: 0 !important;
+
+  &.order-enter-active {
+    transform: none;
+    max-height: 60px;
+    padding: 2rem 0 !important;
+  }
+}
+
+.order-leave {
+  transition: all 500ms ease-in-out;
+
+  &.order-leave-active {
+    transform: translateX(120%);
+    max-height: 0;
+    padding: 0;
+  }
+}
+
+.count-enter {
+  transition: all 250ms ease-in-out;
+  transform: translateY(100%);
+
+  &.count-enter-active {
+    transform: none;
+  }
+}
+
+.count-leave {
+  transition: all 250ms ease-in-out;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+
+  &.count-leave-active {
+    transform: translateY(-100%);
+  }
+}
+
